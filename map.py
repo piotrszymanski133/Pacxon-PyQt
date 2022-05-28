@@ -49,6 +49,8 @@ class Map:
         self.painter.end()
 
     def get_block(self, x, y) -> Block:
+        if x < 0 or y < 25:
+            return Block(-1, -1, BlockType.NO_BLOCK)
         try:
             x_index = x / BLOCK_SIZE
             y_index = (y - 25) / BLOCK_SIZE
@@ -57,14 +59,10 @@ class Map:
             return Block(-1, -1, BlockType.NO_BLOCK)
 
     def change_block_type(self, x, y, block_type):
-        if block_type == BlockType.BREAKABLE_WALL:
-            self.filled_blocks_counter += 1
         x_index = x / BLOCK_SIZE
         y_index = (y - BLOCK_SIZE) / BLOCK_SIZE
         self.blocks[int(x_index)][int(y_index)].type = block_type
         self.window.update()
-
-
 
     def get_temporary_blocks(self):
         tmp_blocks = []
@@ -107,6 +105,13 @@ class Map:
             for j in range(len(self.blocks[i])):
                 if another_map.blocks[i][j].type == BlockType.BREAKABLE_WALL and self.blocks[i][j].type != BlockType.BREAKABLE_WALL:
                     self.blocks[i][j].type = BlockType.BREAKABLE_WALL
+        self.window.update()
+
+    def update_counter(self):
+        self.filled_blocks_counter = 0
+        for block_row in self.blocks:
+            for block in block_row:
+                if block.type == BlockType.BREAKABLE_WALL:
                     self.filled_blocks_counter += 1
 
     def remove_tmp_blocks(self):
@@ -123,3 +128,17 @@ class Map:
             self.__fill_space(x, y - BLOCK_SIZE, map)
             self.__fill_space(x, y + BLOCK_SIZE, map)
         return map
+
+    def clean(self):
+        self.filled_blocks_counter = 0
+        for block_row in self.blocks:
+            for block in block_row:
+                if block.type != BlockType.UNBREAKABLE_WALL:
+                    block.type = BlockType.EMPTY
+
+    def change_blocks_type(self, blocks, block_type):
+        for block in blocks:
+            x_index = block.x / BLOCK_SIZE
+            y_index = (block.y - BLOCK_SIZE) / BLOCK_SIZE
+            self.blocks[int(x_index)][int(y_index)].type = block_type
+            self.window.update()

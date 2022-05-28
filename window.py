@@ -8,6 +8,7 @@ from constnts import WINDOW_WIDTH, WINDOW_HEIGHT, BLOCK_SIZE
 class Window(QMainWindow):
     def __init__(self):
         super().__init__()
+        self.timer = None
         self.level_label = None
         self.level_score_label = None
         self.score_label = None
@@ -37,13 +38,27 @@ class Window(QMainWindow):
 
     def __start_game(self):
         self.__clean()
+        if self.timer is not None:
+            self.timer.stop()
         self.game = Game(self)
         self.show_game_screen()
         self.timer = QTimer(self)
         self.timer.setSingleShot(False)
-        self.timer.setInterval(10)
-        self.timer.timeout.connect(self.game.game_iteration)
+        self.timer.setInterval(7)
+        self.timer.timeout.connect(self.__game_iteration)
         self.timer.start()
+
+    def __game_iteration(self):
+        if self.game.level_changed:
+            if self.game.actual_level_number > 3:
+                self.close()
+            self.game.levels[self.game.previous_level - 1].pacman.picture.hide()
+            for ghost in self.game.levels[self.game.previous_level - 1].ghosts:
+                ghost.picture.hide()
+            self.game.level_changed = False
+            self.__show_characters()
+            self.update()
+        self.game.game_iteration()
 
     def __create_menu_bar(self):
         menu_bar = self.menuBar()
@@ -111,7 +126,6 @@ class Window(QMainWindow):
         self.lives_label.adjustSize()
         self.lives_label.move(450, WINDOW_HEIGHT - 30)
         self.lives_label.show()
-
 
     def __update_label(self, label, text):
         label.setText(text)

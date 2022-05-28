@@ -7,9 +7,14 @@ from PyQt5.QtGui import QPixmap
 
 class Ghost:
     def __init__(self, ghost_type, window):
-        self.x = random.randint(BLOCK_SIZE, WINDOW_WIDTH - 2 * BLOCK_SIZE)
-        self.y = random.randint(BLOCK_SIZE * 2, WINDOW_HEIGHT - 3 * BLOCK_SIZE)
         self.type = ghost_type
+        if ghost_type == GhostType.ORANGE:
+            self.x = random.randint(WINDOW_WIDTH - BLOCK_SIZE, WINDOW_WIDTH)
+            self.y = random.randint(WINDOW_HEIGHT - 3 * BLOCK_SIZE, WINDOW_HEIGHT - 2 * BLOCK_SIZE)
+        else:
+            self.x = random.randint(BLOCK_SIZE, WINDOW_WIDTH - 2 * BLOCK_SIZE)
+            self.y = random.randint(BLOCK_SIZE * 2, WINDOW_HEIGHT - 3 * BLOCK_SIZE)
+
         if random.randint(0, 1) == 1:
             self.x_velocity = 2
         else:
